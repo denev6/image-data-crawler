@@ -10,6 +10,6 @@
 ## 파일
 
 `sample`: 테스트를 위한 이미지 파일  
-`result\converted`: convert_gif.py 실행 결과  
-`result\grayscale`: gray_scale.py 실행 결과  
-`result\resized`: img_resize.py 실행 결과  
+`result/converted`: convert_gif.py 실행 결과  
+`result/grayscale`: gray_scale.py 실행 결과  
+`result/resized`: img_resize.py 실행 결과  

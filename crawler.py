@@ -63,3 +63,5 @@ for i, url in enumerate(img_srcs):
     file_name = f"{DATE}-{i}" + url[extension:]
     # print(alts[i])
     urlretrieve(url, os.path.join(SAVE_DIR, file_name))
+
+browser.close()
