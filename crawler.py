@@ -50,6 +50,7 @@ for _ in range(MAX_ITER):
 # 사용자 필요에 따라 아래에 코드 설정
 # 이미지의 src 태그가 포함된 코드를 찾아 imgs로 저장
 imgs = browser.find_elements_by_class_name("...")
+alts = browser.find_element_by_class_name("...")
 
 img_srcs = list()
 
@@ -60,5 +61,5 @@ for img in imgs:
 for i, url in enumerate(img_srcs):
     extension = str(url).rfind(".")
     file_name = f"{DATE}-{i}" + url[extension:]
-    print(file_name)
+    # print(alts[i])
     urlretrieve(url, os.path.join(SAVE_DIR, file_name))
