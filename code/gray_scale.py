@@ -22,5 +22,5 @@ imgs = list(map(specify_img_path, imgs))
 
 for img in imgs:
     with Image.open(img) as img_:
-        greyscale = img_.convert("L")
-        greyscale.save(specify_save_path(img))
+        grayscale = img_.convert("L")
+        grayscale.save(specify_save_path(img))

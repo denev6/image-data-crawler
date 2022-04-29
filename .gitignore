@@ -1,2 +1,4 @@
 .prettierignore
 chromedriver.exe
+test.py
+test/

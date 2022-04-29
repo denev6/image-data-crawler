@@ -14,7 +14,6 @@ def find_ext(extension):
     file = f"*.{extension}"
     return list(Path(GIF_DIR).glob(file))
 
-files = os.listdir(GIF_DIR)
 
 gifs = find_ext("gif")
 imgs = find_ext("png") + find_ext("jpg")
@@ -30,3 +29,4 @@ for gif in gifs:
 
 for img in imgs:
     shutil.copy(img, SAVE_DIR)
+
