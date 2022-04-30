@@ -44,20 +44,20 @@ ic.convert(img_dir, result_dir, img_size=(32, 32), gray_scale=True)   # 4
 
 **예시 이미지**
 
-<img src="./assets/readme-1.png" alt="크롤링 샘플">
+<img src="./pages/assets/readme-1.png" alt="크롤링 샘플">
 
 resized:  
-<img src="./assets/readme-2.png" alt="크기 조정 결과">
+<img src="./pages/assets/readme-2.png" alt="크기 조정 결과">
 
 grayscale:  
-<img src="./assets/readme-3.png" alt="회색조 변환 결과">
+<img src="./pages/assets/readme-3.png" alt="회색조 변환 결과">
 
 **예시 이미지(gif)**
 
-<img src="./assets/shape.gif" alt="크롤링 샘플 gif" width=130>
+<img src="./pages/assets/shape.gif" alt="크롤링 샘플 gif" width=130>
 
 gif_to_img:  
-<img src="./assets/readme-4.png" alt="회색조 변환 결과">
+<img src="./pages/assets/readme-4.png" alt="회색조 변환 결과">
 
 
 ## Customize
