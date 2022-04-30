@@ -34,17 +34,17 @@ browser.maximize_window()
 
 browser.get(URL)
 
-prev_height = 0
+previous_height = 0
 for _ in range(MAX_ITER):
     browser.execute_script("window.scrollTo(0, document.body.scrollHeight)")
 
     sleep(PAUSE)
 
-    curr_height = browser.execute_script("return document.body.scrollHeight")
-    if curr_height == prev_height:
+    current_height = browser.execute_script("return document.body.scrollHeight")
+    if current_height == previous_height:
         break
 
-    prev_height = curr_height
+    previous_height = current_height
 
 
 # 사용자 필요에 따라 아래에 코드 설정

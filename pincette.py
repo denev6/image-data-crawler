@@ -10,51 +10,78 @@ from urllib.request import urlretrieve
 
 
 class ImgCrawler(object):
-    def __init__(self, driver_path, user_agent):
-        options = webdriver.ChromeOptions()
-        options.add_argument(user_agent)
-        self._driver = webdriver.Chrome(driver_path, options=options)
+    """
+    이미지 크롤링 및 처리를 위한 함수를 제공합니다.
+       * Chrome driver를 사용하고 있습니다.
+
+    Attributes:
+        driver_path (str): 사용할 driver의 경로.
+        options (list, tuple): driver에 적용될 설정들.
+            * selenium.webdriver.ChromeOptions.add_argument 속성에 사용.
+
+    Functions:
+        crawl_img
+        convert
+        gif_to_png
+
+    Example:
+        >>> from pincette import ImgCrawler
+        >>> ic = ImgCrawler(driver)
+        >>> ic.crawl_img(url, gif_dir, scroll=True, iter=2)
+        >>> ic.gif_to_png(gif_dir, img_dir, copy_imgs=True)
+        >>> ic.convert(img_dir, result_dir, img_size=(32, 32), gray_scale=True)
+    """
+
+    def __init__(self, driver_path, options=None):
+        driver_options = webdriver.ChromeOptions()
+        if options:
+            for option in options:
+                driver_options.add_argument(option)
+        self._driver = webdriver.Chrome(driver_path, options=driver_options)
 
     def crawl_img(self, url, save_dir, scroll=False, iter=3, pause=3):
-        """이미지 데이터 크롤링을 수행한다. (사용자 필요에 따라 코드 수정 필요)
+        """
+        이미지 데이터 크롤링을 수행한다. (사용자 필요에 따라 코드 수정 필요)
         
-            Args:
-                url: (str) 크롤링을 수행할 URL
-                save_dir: (str) 저장할 파일 경로
-                scroll: (bool) 스크롤 동작을 수행할 여부
-                iter: (int) 스크롤 반복 횟수
-                pause: (int) 스크롤 후 대기 시간(초)
+        Args:
+            url (str): 크롤링을 수행할 URL.
+            save_dir (str): 저장할 파일 경로.
+            scroll (bool): 스크롤 동작을 수행할 여부.
+            iter (int): 스크롤 반복 횟수.
+            pause (int): 스크롤 후 대기 시간(초).
         """
         self._driver.implicitly_wait(5)
-        self._driver.maximize_window()
         self._driver.get(url)
         if scroll:
             self._scroll_down(iter, pause)
 
-        ###################################################################
+        ##########################################################################
         # 사용자 필요에 따라 생성 및 조정
         # img_srcs: 이미지 파일 URL
-        # file_name: (str, list, tuple) 이미지가 저장될 이름.
+        # file_name (str, list, tuple): 이미지가 저장될 이름.
         #            None일 경우 0부터 정수 형식으로 자동 생성
+        # print_progress (bool): 이미지를 저장하는 과정을 실시간으로 출력하지 여부
 
         imgs = self._driver.find_elements_by_class_name("image__content")
         img_srcs = self._get_src(imgs)
         file_name = None
+        print_progess = True
 
-        ###################################################################
+        ##########################################################################
 
-        self._save_img(img_srcs, save_dir, file_name)
+        self._save_img(img_srcs, save_dir, file_name, print_progess)
 
         self._driver.quit()
 
     def convert(self, img_dir, save_dir, img_size=False, gray_scale=False):
-        """이미지 데이터 크롤링을 수행한다. (사용자 필요에 따라 코드 수정 필요)
+        """
+        이미지 데이터 크롤링을 수행한다. (사용자 필요에 따라 코드 수정 필요)
         
-            Args:
-                img_dir: (str) 원본 이미지 파일 경로
-                save_dir: (str) 저장할 파일 경로
-                img_size: (tuple[int:int]) 이미지 크기 (수행하지 않을 경우 False)
-                gray_scale: (bool) 회색조 변경 수행 여부
+        Args:
+            img_dir (str): 원본 이미지 파일 경로.
+            save_dir (str): 저장할 파일 경로.
+            img_size (tuple[int:int]): 이미지 크기 (수행하지 않을 경우 False).
+            gray_scale (bool): 회색조 변경 수행 여부.
         """
         imgs = []
         for ext in ("png", "jpg", "jpeg"):
@@ -70,12 +97,13 @@ class ImgCrawler(object):
                 f.save(save_path)
 
     def gif_to_png(self, gif_dir, save_dir, copy_imgs=False):
-        """gif 파일을 png 이미지로 변환
+        """
+        gif 파일을 png 이미지로 변환.
         
-            Args:
-                gif_dir: (str) 원본 gif 파일 경로
-                save_dir: (str) 저장할 파일 경로
-                copy_imgs: (bool) gif 외 이미지 파일의 복사 여부
+        Args:
+            gif_dir: (str) 원본 gif 파일 경로.
+            save_dir: (str) 저장할 파일 경로.
+            copy_imgs: (bool) gif 외 이미지 파일의 복사 여부.
         """
         gifs = self._get_files(gif_dir, "gif")
         for gif in gifs:
@@ -109,13 +137,13 @@ class ImgCrawler(object):
             previous_height = current_height
 
     def _get_src(self, elements) -> list:
-        """img 태그에서 src 반환
+        """img 태그에서 src 반환. (selenium 활용)
         
-            Example:
-                >>> imgs = self._driver.find_elements_by_class_name("image__content")
-                >>> img_srcs =  self._get_src(imgs)
-                >>> img_srcs
-                ['http://...', 'http://...', 'http://...']
+        Example:
+            >>> imgs = self._driver.find_elements_by_class_name("image__content")
+            >>> img_srcs =  self._get_src(imgs)
+            >>> img_srcs
+            ['http://...', 'http://...', 'http://...']
         """
         img_srcs = list()
         for img in elements:
@@ -123,14 +151,14 @@ class ImgCrawler(object):
             img_srcs.append(src)
         return img_srcs
 
-    def _save_img(self, img_srcs, save_dir, file_name=None, print_=False):
+    def _save_img(self, img_srcs, save_dir, file_name=None, print_progess=False):
         for i, url in enumerate(img_srcs):
             file_name = self._select_filename(file_name, i)
             extension = Path(url).suffix
             file = str(file_name) + extension
             urlretrieve(url, os.path.join(save_dir, file))
-            if print_:
-                print(file)
+            if print_progess:
+                print(f"{i:03}: {file}")
 
     def _select_filename(self, file_name, i):
         if isinstance(file_name, str):
@@ -158,12 +186,12 @@ if __name__ == "__main__":
     gif_dir = make_dir("test", "crawled")
     img_dir = make_dir("test", "imgs")
     result_dir = make_dir("test", "converted")
-    driver = "driver.exe"
-    user_agent = "..."
-    url = "..."
+    options = ("window-size=1920,1080",)
+    driver = "chromedriver.exe"
+    url = "https://pincette.netlify.app/"
 
     # 작업 수행
-    ic = ImgCrawler(driver, user_agent)
-    ic.crawl_img(url, gif_dir, scroll=True, iter=2)
+    ic = ImgCrawler(driver, options)
+    ic.crawl_img(url, gif_dir, scroll=False)
     ic.gif_to_png(gif_dir, img_dir, copy_imgs=True)
     ic.convert(img_dir, result_dir, img_size=(32, 32), gray_scale=True)
