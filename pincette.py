@@ -27,6 +27,7 @@ class Pincette(object):
         save_imgs
         gif_to_png
         convert
+        extend_srcs
 
     Example:
         >>> from pincette import Pincette
@@ -99,7 +100,19 @@ class Pincette(object):
             if progess:
                 print(f"{i:03}: {file}")
 
+    def extend_srcs(self, srcs):
+        """
+        selenium을 활용해 직접 주소를 가져왔을 때, 저장 목록에 해당 주소를 저장. 
+        
+        Args:
+            srcs (list): 이미지 주소가 포함된 리스트.
+        """
+        self.__img_srcs += srcs
+
     def close_tab(self):
+        """
+        브라우저와 driver를 종료.
+        """
         self.driver.quit()
 
     def gif_to_png(self, gif_dir, save_dir, copy_imgs=False):

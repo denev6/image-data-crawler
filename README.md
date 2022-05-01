@@ -1,5 +1,6 @@
-# 이미지 데이터 크롤링 및 처리
+# Pincette
 
+**selenium** 기반의 이미지 크롤링 및 처리 모듈
 
 ## Version
 
@@ -70,14 +71,18 @@ gif_to_img:
 <img src="./pages/assets/readme-4.png" alt="회색조 변환 결과">
 
 
-## Customize
+## Use Selenium  
 
-`Pincette`는 `driver`속성을 가지고 있으며, 이는 selenium의 `webdriver.Chrome`와 동일합니다.  
+`Pincette`는 `driver`속성을 가지고 있으며, 이는 selenium의 `webdriver.Chrome`과 동일합니다.  
 따라서 <a href="https://www.selenium.dev/documentation/webdriver/elements/finders/" target="_blank">selenium</a>의 함수를 그대로 사용할 수 있습니다.  
 ```python
-pn = Pincette(driver)
+pn = Pincette(driver_path)
+
 element = pn.driver.find_element_by_class_name("content")
-element.get_attribute("src")
+src = element.get_attribute("src")
+
+pn.extend_srcs([src])
+pn.save_imgs(...)
 ...
 ```
 
