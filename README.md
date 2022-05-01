@@ -4,7 +4,7 @@
 ## Version
 
 - python: 3.8.11  
-- pillow: 8.3.1  
+- pillow: 9.0.1  
 - selenium: 3.141.0  
 - urllib3: 1.26.6  
 
