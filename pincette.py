@@ -9,73 +9,128 @@ from selenium import webdriver
 from urllib.request import urlretrieve
 
 
-class ImgCrawler(object):
+class Pincette(object):
     """
     이미지 크롤링 및 처리를 위한 함수를 제공합니다.
        * Chrome driver를 사용하고 있습니다.
 
-    Attributes:
+    Args:
         driver_path (str): 사용할 driver의 경로.
-        options (list, tuple): driver에 적용될 설정들.
-            * selenium.webdriver.ChromeOptions.add_argument 속성에 사용.
+        *options: driver에 적용될 설정들. ChromeOptions.add_argument 속성에 사용.
+
+    Attributes:
+        driver: selenium.webdriver.Chrome
 
     Functions:
-        crawl_img
-        convert
+        load_page
+        find_imgs
+        save_imgs
         gif_to_png
+        convert
 
     Example:
-        >>> from pincette import ImgCrawler
-        >>> ic = ImgCrawler(driver)
-        >>> ic.crawl_img(url, gif_dir, scroll=True, iter=2)
-        >>> ic.gif_to_png(gif_dir, img_dir, copy_imgs=True)
-        >>> ic.convert(img_dir, result_dir, img_size=(32, 32), gray_scale=True)
+        >>> from pincette import Pincette
+        >>> ...
+        >>> pn = Pincette(driver)
+        >>> pn.load_page(url, scroll=False)
+        >>> pn.find_imgs("image__content")
+        >>> pn.save_imgs(gif_dir, progess=True)
+        >>> pn.close_tab()
+        >>> pn.gif_to_png(gif_dir, img_dir, copy_imgs=True)
+        >>> pn.convert(img_dir, result_dir, img_size=(32, 32), gray_scale=True)
     """
 
-    def __init__(self, driver_path, options=None):
+    def __init__(self, driver_path, *options):
         driver_options = webdriver.ChromeOptions()
         if options:
             for option in options:
                 driver_options.add_argument(option)
-        self._driver = webdriver.Chrome(driver_path, options=driver_options)
+        self.driver = webdriver.Chrome(driver_path, options=driver_options)
+        self.__img_srcs = []
 
-    def crawl_img(self, url, save_dir, scroll=False, iter=3, pause=3):
+    def load_page(self, url, scroll=False, iter=3, pause=3):
         """
-        이미지 데이터 크롤링을 수행한다. (사용자 필요에 따라 코드 수정 필요)
+        크롤링을 위한 페이지 가져오기.
         
         Args:
             url (str): 크롤링을 수행할 URL.
-            save_dir (str): 저장할 파일 경로.
             scroll (bool): 스크롤 동작을 수행할 여부.
             iter (int): 스크롤 반복 횟수.
             pause (int): 스크롤 후 대기 시간(초).
         """
-        self._driver.implicitly_wait(5)
-        self._driver.get(url)
+        self.driver.implicitly_wait(5)
+        self.driver.get(url)
         if scroll:
             self._scroll_down(iter, pause)
 
-        ##########################################################################
-        # 사용자 필요에 따라 생성 및 조정
-        # img_srcs: 이미지 파일 URL
-        # file_name (str, list, tuple): 이미지가 저장될 이름.
-        #            None일 경우 0부터 정수 형식으로 자동 생성
-        # print_progress (bool): 이미지를 저장하는 과정을 실시간으로 출력하지 여부
+    def find_imgs(self, class_name, attr="src"):
+        """
+        크롤링할 이미지의 주소를 저장
+        
+        Args:
+            class_name (str): 이미지 주소가 포함된 태그의 class.
+            attr (str): 주소가 포함된 태그의 속성값.
+        """
+        imgs = self.driver.find_elements_by_class_name(class_name)
+        img_srcs = self._get_attrs(imgs, attr)
+        self.__img_srcs += img_srcs
 
-        imgs = self._driver.find_elements_by_class_name("image__content")
-        img_srcs = self._get_src(imgs)
-        file_name = None
-        print_progess = True
+    def save_imgs(self, save_dir, file_name=None, ext="auto", progess=False):
+        """
+        주소를 통해 이미지 저장.
+        
+        Args:
+            save_dir (str): 이미지 저장 경로.
+            file_name (list, tuple, str): 저장할 이미지 파일 이름. 
+                list 또는 tuple을 사용할 경우 순서대로 이름이 지정되며,
+                str을 사용할 경우 str-{숫자} 형식으로 이름이 지정됩니다.
+                기본값은 0, 1, 2 ... 과 같이 지정됩니다. 
+            ext (str): 확장자 설정. 기본값은 크롤링하는 이미지에 따라 자동 설정.
+            progress (bool): 진행 상황의 실시간 출력 여부.
+        """
+        for i, url in enumerate(self.__img_srcs):
+            label = self._select_filename(file_name, i)
+            if ext == "auto":
+                extension = Path(url).suffix
+            else:
+                extension = self._format_ext(ext)
+            file = str(label) + extension
+            urlretrieve(url, os.path.join(save_dir, file))
+            if progess:
+                print(f"{i:03}: {file}")
 
-        ##########################################################################
+    def close_tab(self):
+        self.driver.quit()
 
-        self._save_img(img_srcs, save_dir, file_name, print_progess)
+    def gif_to_png(self, gif_dir, save_dir, copy_imgs=False):
+        """
+        gif 파일을 png 이미지로 변환.
+        
+        Args:
+            gif_dir (str): 원본 gif 파일 경로.
+            save_dir (str): 저장할 파일 경로.
+            copy_imgs (bool): gif 외 이미지 파일의 복사 여부.
+        """
+        gifs = self._get_files(gif_dir, "gif")
+        for gif in gifs:
+            with Image.open(gif) as f:
+                for n_frame in range(f.n_frames):
+                    f.seek(n_frame)
+                    file_name = f"{Path(gif).stem}-{n_frame}.png"
+                    file_path = os.path.join(save_dir, file_name)
+                    f.save(file_path)
 
-        self._driver.quit()
+        if copy_imgs:
+            imgs = []
+            for ext in ("png", "jpg", "jpeg"):
+                imgs += self._get_files(gif_dir, ext)
+
+            for img in imgs:
+                shutil.copy(img, save_dir)
 
     def convert(self, img_dir, save_dir, img_size=False, gray_scale=False):
         """
-        이미지 데이터 크롤링을 수행한다. (사용자 필요에 따라 코드 수정 필요)
+        이미지 편집(크기 조정/회색조)을 수행.
         
         Args:
             img_dir (str): 원본 이미지 파일 경로.
@@ -96,69 +151,24 @@ class ImgCrawler(object):
                     f = f.convert("L")
                 f.save(save_path)
 
-    def gif_to_png(self, gif_dir, save_dir, copy_imgs=False):
-        """
-        gif 파일을 png 이미지로 변환.
-        
-        Args:
-            gif_dir: (str) 원본 gif 파일 경로.
-            save_dir: (str) 저장할 파일 경로.
-            copy_imgs: (bool) gif 외 이미지 파일의 복사 여부.
-        """
-        gifs = self._get_files(gif_dir, "gif")
-        for gif in gifs:
-            with Image.open(gif) as f:
-                for n_frame in range(f.n_frames):
-                    f.seek(n_frame)
-                    file_name = f"{Path(gif).stem}-{n_frame}.png"
-                    file_path = os.path.join(save_dir, file_name)
-                    f.save(file_path)
-
-        if copy_imgs:
-            imgs = []
-            for ext in ("png", "jpg", "jpeg"):
-                imgs += self._get_files(gif_dir, ext)
-
-            for img in imgs:
-                shutil.copy(img, save_dir)
-
     def _scroll_down(self, max_iter, pause):
         previous_height = 0
         for _ in range(max_iter):
-            self._driver.execute_script(
-                "window.scrollTo(0, document.body.scrollHeight)"
-            )
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
             sleep(pause)
-            current_height = self._driver.execute_script(
+            current_height = self.driver.execute_script(
                 "return document.body.scrollHeight"
             )
             if current_height == previous_height:
                 break
             previous_height = current_height
 
-    def _get_src(self, elements) -> list:
-        """img 태그에서 src 반환. (selenium 활용)
-        
-        Example:
-            >>> imgs = self._driver.find_elements_by_class_name("image__content")
-            >>> img_srcs =  self._get_src(imgs)
-            >>> img_srcs
-            ['http://...', 'http://...', 'http://...']
-        """
+    def _get_attrs(self, elements, attr) -> list:
         img_srcs = list()
         for img in elements:
-            src = img.get_attribute("src")
+            src = img.get_attribute(attr)
             img_srcs.append(src)
         return img_srcs
-
-    def _save_img(self, img_srcs, save_dir, file_name=None, print_progess=False):
-        for i, url in enumerate(img_srcs):
-            file_name = self._select_filename(file_name, i)
-            extension = Path(url).suffix
-            file = str(file_name) + extension
-            urlretrieve(url, os.path.join(save_dir, file))
-            if print_progess:
-                print(f"{i:03}: {file}")
 
     def _select_filename(self, file_name, i):
         if isinstance(file_name, str):
@@ -171,27 +181,49 @@ class ImgCrawler(object):
     def _get_files(self, dir, extension):
         return list(Path(dir).glob(f"*.{extension}"))
 
+    def _format_ext(self, extention):
+        if extention[0] == ".":
+            return extention
+        else:
+            return f".{extention}"
+
+
+def make_dir(*file_name):
+    """
+    파일을 생성하고 절대 경로를 반환.
+
+    Args:
+        *file_name (str): 현재 작업 디렉토리로부터의 경로.
+    
+    Returns:
+        str: 생성된 파일의 절대 경로.
+
+    Example:
+        현재 작업 경로: 'C:\\a'
+        >>> path = make_dir("b", "c", "d")
+        >>> path
+        'C:\\a\\b\\c\\d'
+    """
+    cwd = os.getcwd()
+    dir = os.path.join(cwd, *file_name)
+    os.makedirs(dir, exist_ok=True)
+    return dir
+
 
 if __name__ == "__main__":
-
-    # 현재 경로
-    CWD = os.getcwd()
-
-    def make_dir(*file_name):
-        dir = os.path.join(CWD, *file_name)
-        os.makedirs(dir, exist_ok=True)
-        return dir
 
     # 설정 값
     gif_dir = make_dir("test", "crawled")
     img_dir = make_dir("test", "imgs")
     result_dir = make_dir("test", "converted")
-    options = ("window-size=1920,1080",)
     driver = "chromedriver.exe"
     url = "https://pincette.netlify.app/"
 
     # 작업 수행
-    ic = ImgCrawler(driver, options)
-    ic.crawl_img(url, gif_dir, scroll=False)
-    ic.gif_to_png(gif_dir, img_dir, copy_imgs=True)
-    ic.convert(img_dir, result_dir, img_size=(32, 32), gray_scale=True)
+    pn = Pincette(driver, "window-size=1920,1080", "--disable-gpu")
+    pn.load_page(url, scroll=False)
+    pn.find_imgs("image__content")
+    pn.save_imgs(gif_dir, progess=True)
+    pn.close_tab()
+    pn.gif_to_png(gif_dir, img_dir, copy_imgs=True)
+    pn.convert(img_dir, result_dir, img_size=(32, 32), gray_scale=True)
