@@ -4,8 +4,8 @@ from pathlib import Path
 from PIL import Image
 
 CWD = os.getcwd()
-IMG_DIR = os.path.join(CWD, "result", "converted")  # 이미지 경로 변경하여 사용
-SAVE_DIR = os.path.join(CWD, "result", "grayscale")  # 저장 경로 변경하여 사용
+IMG_DIR = os.path.join(CWD, "result", "converted")
+SAVE_DIR = os.path.join(CWD, "result", "grayscale")
 os.makedirs(SAVE_DIR, exist_ok=True)
 
 
@@ -21,6 +21,6 @@ imgs = os.listdir(IMG_DIR)
 imgs = list(map(specify_img_path, imgs))
 
 for img in imgs:
-    with Image.open(img) as img_:
-        grayscale = img_.convert("L")
+    with Image.open(img) as f:
+        grayscale = f.convert("L")
         grayscale.save(specify_save_path(img))

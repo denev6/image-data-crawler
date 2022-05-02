@@ -16,7 +16,7 @@ class Pincette(object):
 
     Args:
         driver_path (str): 사용할 driver의 경로.
-        *options: driver에 적용될 설정들. ChromeOptions.add_argument 속성에 사용.
+        *options: driver에 적용될 설정들. ChromeOptions.add_argument에 사용.
 
     Attributes:
         driver: selenium.webdriver.Chrome
@@ -25,7 +25,7 @@ class Pincette(object):
         load_page
         find_imgs
         save_imgs
-        gif_to_png
+        gif_to_img
         convert
         extend_srcs
 
@@ -37,12 +37,13 @@ class Pincette(object):
         >>> pn.find_imgs("image__content")
         >>> pn.save_imgs(gif_dir, progess=True)
         >>> pn.close_tab()
-        >>> pn.gif_to_png(gif_dir, img_dir, copy_imgs=True)
+        >>> pn.gif_to_img(gif_dir, img_dir, copy_imgs=True)
         >>> pn.convert(img_dir, result_dir, img_size=(32, 32), gray_scale=True)
     """
 
     def __init__(self, driver_path, *options):
         driver_options = webdriver.ChromeOptions()
+        driver_options.add_experimental_option("excludeSwitches", ["enable-logging"])
         if options:
             for option in options:
                 driver_options.add_argument(option)
@@ -76,7 +77,9 @@ class Pincette(object):
         img_srcs = self._get_attrs(imgs, attr)
         self.__img_srcs += img_srcs
 
-    def save_imgs(self, save_dir, file_name=None, ext="auto", progess=False):
+    def save_imgs(
+        self, save_dir, file_name=None, ext="auto", ignore=True, progess=False, max=None
+    ):
         """
         주소를 통해 이미지 저장.
         
@@ -87,8 +90,12 @@ class Pincette(object):
                 str을 사용할 경우 str-{숫자} 형식으로 이름이 지정됩니다.
                 기본값은 0, 1, 2 ... 과 같이 지정됩니다. 
             ext (str): 확장자 설정. 기본값은 크롤링하는 이미지에 따라 자동 설정.
+            ignore (bool): 발생하는 예외를 무시할지 여부.
             progress (bool): 진행 상황의 실시간 출력 여부.
+            max (int): 저장할 이미지의 최대 갯수 제한. 기본값은 제한을 두지 않음.
         """
+        count = 0
+
         for i, url in enumerate(self.__img_srcs):
             label = self._select_filename(file_name, i)
             if ext == "auto":
@@ -96,9 +103,18 @@ class Pincette(object):
             else:
                 extension = self._format_ext(ext)
             file = str(label) + extension
-            urlretrieve(url, os.path.join(save_dir, file))
-            if progess:
-                print(f"{i:03}: {file}")
+            try:
+                urlretrieve(url, os.path.join(save_dir, file))
+                count += 1
+                if progess:
+                    print(f"{i}: {file}")
+            except Exception as exp:
+                if not ignore:
+                    raise exp
+                print(f"'{file}'이 저장되지 못했습니다.")
+
+            if count == max:
+                return
 
     def extend_srcs(self, srcs):
         """
@@ -115,28 +131,30 @@ class Pincette(object):
         """
         self.driver.quit()
 
-    def gif_to_png(self, gif_dir, save_dir, copy_imgs=False):
+    def gif_to_img(self, gif_dir, save_dir, ext="png", copy_imgs=False):
         """
-        gif 파일을 png 이미지로 변환.
+        gif 파일을 이미지로 변환.
         
         Args:
             gif_dir (str): 원본 gif 파일 경로.
             save_dir (str): 저장할 파일 경로.
+            ext (str): 저장할 이미지 확장자. 기본값은 png.
             copy_imgs (bool): gif 외 이미지 파일의 복사 여부.
         """
+        ext = self._format_ext(ext)
         gifs = self._get_files(gif_dir, "gif")
         for gif in gifs:
             with Image.open(gif) as f:
                 for n_frame in range(f.n_frames):
                     f.seek(n_frame)
-                    file_name = f"{Path(gif).stem}-{n_frame}.png"
+                    file_name = f"{Path(gif).stem}-{n_frame}{ext}"
                     file_path = os.path.join(save_dir, file_name)
                     f.save(file_path)
 
         if copy_imgs:
             imgs = []
-            for ext in ("png", "jpg", "jpeg"):
-                imgs += self._get_files(gif_dir, ext)
+            for extension in ("png", "jpg", "jpeg"):
+                imgs += self._get_files(gif_dir, extension)
 
             for img in imgs:
                 shutil.copy(img, save_dir)
@@ -238,5 +256,5 @@ if __name__ == "__main__":
     pn.find_imgs("image__content")
     pn.save_imgs(gif_dir, progess=True)
     pn.close_tab()
-    pn.gif_to_png(gif_dir, img_dir, copy_imgs=True)
+    pn.gif_to_img(gif_dir, img_dir, copy_imgs=True)
     pn.convert(img_dir, result_dir, img_size=(32, 32), gray_scale=True)

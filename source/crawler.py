@@ -7,12 +7,12 @@ from urllib.request import urlretrieve
 
 # LOCAL PATH
 CWD = os.getcwd()
-DRIVER_PATH = os.path.join(CWD, "driver.exe")  # driver 경로 변경하여 사용
-SAVE_DIR = os.path.join(CWD, "images")  # 저장 경로 변경하여 사용
+DRIVER_PATH = os.path.join(CWD, "driver.exe")
+SAVE_DIR = os.path.join(CWD, "images")
 os.makedirs(SAVE_DIR, exist_ok=True)
 
 # URL
-URL = ""  # URL 경로 변경하여 사용
+URL = ""
 
 # SCROLL
 PAUSE = 5
@@ -22,7 +22,6 @@ MAX_ITER = 3
 today = date.today()
 DATE = f"{today.month:02}{today.day:02}"
 
-# CRAWLER: user agent를 설정할 경우, 아래 주석을 해제한 후 USER_AGENT 입력
 # USER_AGENT = ""
 # options = webdriver.ChromeOptions()
 # options.add_argument(USER_AGENT)
@@ -46,9 +45,6 @@ for _ in range(MAX_ITER):
 
     previous_height = current_height
 
-
-# 사용자 필요에 따라 아래에 코드 설정
-# 이미지의 src 태그가 포함된 코드를 찾아 imgs로 저장
 imgs = browser.find_elements_by_class_name("...")
 alts = browser.find_element_by_class_name("...")
 

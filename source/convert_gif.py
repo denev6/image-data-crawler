@@ -5,8 +5,8 @@ from pathlib import Path
 from PIL import Image
 
 CWD = os.getcwd()
-GIF_DIR = os.path.join(CWD, "sample")  # gif 파일이 포함된 경로 변경하여 사용
-SAVE_DIR = os.path.join(CWD, "result", "converted")  # 저장 경로 변경하여 사용
+GIF_DIR = os.path.join(CWD, "sample")
+SAVE_DIR = os.path.join(CWD, "result", "converted")
 os.makedirs(SAVE_DIR, exist_ok=True)
 
 
@@ -22,7 +22,6 @@ for gif in gifs:
     with Image.open(gif) as gif_:
         for n_frame in range(gif_.n_frames):
             gif_.seek(n_frame)
-            # 저장할 파일 이름 변경하여 사용
             file_name = f"{Path(gif).stem}-{n_frame}.png"
             file_path = os.path.join(SAVE_DIR, file_name)
             gif_.save(file_path)

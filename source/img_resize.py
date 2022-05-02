@@ -4,11 +4,11 @@ from pathlib import Path
 from PIL import Image
 
 CWD = os.getcwd()
-IMG_DIR = os.path.join(CWD, "result", "converted")  # 이미지 경로 변경하여 사용
-SAVE_DIR = os.path.join(CWD, "result", "resized")  # 저장 경로 변경하여 사용
+IMG_DIR = os.path.join(CWD, "result", "converted")
+SAVE_DIR = os.path.join(CWD, "result", "resized")
 os.makedirs(SAVE_DIR, exist_ok=True)
 
-IMG_SIZE = (100, 100)  # 이미지 크기 변경하여 사용
+IMG_SIZE = (100, 100)
 
 
 def specify_img_path(file_name):

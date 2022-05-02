@@ -1,6 +1,6 @@
 # Pincette
 
-**selenium** 기반의 이미지 크롤링 및 처리 모듈
+`selenium` 기반의 이미지 크롤링 및 처리 모듈
 
 ## Version
 
@@ -29,7 +29,7 @@ pn.load_page(url, scroll=False)   # 2
 pn.find_imgs("image__content")   # 3
 pn.save_imgs(gif_dir, progess=True)   # 4
 pn.close_tab()   # 5
-pn.gif_to_png(gif_dir, img_dir, copy_imgs=True)   # 6
+pn.gif_to_img(gif_dir, img_dir, copy_imgs=True)   # 6
 pn.convert(img_dir, result_dir, img_size=(32, 32), gray_scale=True)   # 7
 ```
 `#0`: 해당 코드는 <a href="https://chromedriver.chromium.org/downloads" target="_blank">Chrome-Driver</a>를 사용합니다.  
@@ -38,7 +38,7 @@ pn.convert(img_dir, result_dir, img_size=(32, 32), gray_scale=True)   # 7
 `#3`: 이미지 주소를 태그의 class로 찾아 저장합니다.  
 `#4`: 찾은 이미지를 저장합니다.  
 `#5`: 브라우저와 driver를 종료합니다.  
-`#6`: gif 이미지를 png 이미지로 나누어 줍니다.  
+`#6`: gif 파일을 여러 이미지로 나누어 줍니다.  
 `#7`: 이미지의 크기를 조정하거나 색상을 회색조로 변경할 수 있습니다.  
 
 
@@ -110,6 +110,6 @@ if __name__ == "__main__":
     pn.find_imgs("image__content")
     pn.save_imgs(gif_dir, progess=True)
     pn.close_tab()
-    pn.gif_to_png(gif_dir, img_dir, copy_imgs=True)
+    pn.gif_to_img(gif_dir, img_dir, copy_imgs=True)
     pn.convert(img_dir, result_dir, img_size=(32, 32), gray_scale=True)
 ```
