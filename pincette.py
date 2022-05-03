@@ -15,7 +15,7 @@ class Pincette(object):
        * Chrome driver를 사용하고 있습니다.
 
     Args:
-        driver_path (str): 사용할 driver의 경로.
+        driver_path (str, None): 사용할 driver의 경로. selenium을 사용하지 않을 경우, None으로 설정 가능.
         *options: driver에 적용될 설정들. ChromeOptions.add_argument에 사용.
 
     Attributes:
@@ -24,6 +24,7 @@ class Pincette(object):
     Functions:
         load_page
         find_imgs
+        save_imgs
         save_imgs
         gif_to_img
         convert
@@ -42,12 +43,15 @@ class Pincette(object):
     """
 
     def __init__(self, driver_path, *options):
-        driver_options = webdriver.ChromeOptions()
-        driver_options.add_experimental_option("excludeSwitches", ["enable-logging"])
-        if options:
-            for option in options:
-                driver_options.add_argument(option)
-        self.driver = webdriver.Chrome(driver_path, options=driver_options)
+        if driver_path is not None:
+            driver_options = webdriver.ChromeOptions()
+            driver_options.add_experimental_option(
+                "excludeSwitches", ["enable-logging"]
+            )
+            if options:
+                for option in options:
+                    driver_options.add_argument(option)
+            self.driver = webdriver.Chrome(driver_path, options=driver_options)
         self.__img_srcs = []
 
     def load_page(self, url, scroll=False, iter=3, pause=3):
@@ -75,7 +79,7 @@ class Pincette(object):
         """
         imgs = self.driver.find_elements_by_class_name(class_name)
         img_srcs = self._get_attrs(imgs, attr)
-        self.__img_srcs += img_srcs
+        self.extend_srcs(img_srcs)
 
     def save_imgs(
         self, save_dir, file_name=None, ext="auto", ignore=True, progess=False, max=None
@@ -118,7 +122,7 @@ class Pincette(object):
 
     def extend_srcs(self, srcs):
         """
-        selenium을 활용해 직접 주소를 가져왔을 때, 저장 목록에 해당 주소를 저장. 
+        이미지 주소를 저장 목록에 저장. 
         
         Args:
             srcs (list): 이미지 주소가 포함된 리스트.
