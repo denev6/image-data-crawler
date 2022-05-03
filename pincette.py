@@ -25,14 +25,12 @@ class Pincette(object):
         load_page
         find_imgs
         save_imgs
-        save_imgs
         gif_to_img
         convert
         extend_srcs
 
     Example:
         >>> from pincette import Pincette
-        >>> ...
         >>> pn = Pincette(driver)
         >>> pn.load_page(url, scroll=False)
         >>> pn.find_imgs("image__content")
