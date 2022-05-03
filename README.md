@@ -19,7 +19,7 @@ __최근 수정 내용__: driver.exe 없이도 사용 가능하도록 수정.
 ## Version
 
 ```Shell
->>> pip install -r requirements.txt
+$ pip install -r requirements.txt
 ```
 
 - python: 3.8.11  
@@ -79,7 +79,7 @@ urls = ["https://...img-1.png", "https://...img-2.png", ... ]
 pn.extend_srcs(urls)
 ```
 
-### Use Selenium
+### Use selenium
 
 `Pincette`는 `driver`속성을 가지고 있으며, 이는 selenium의 `webdriver.Chrome`과 동일합니다.  
 따라서 <a href="https://www.selenium.dev/documentation/webdriver/elements/finders/" target="_blank">selenium</a>의 함수를 그대로 사용할 수 있습니다.  
