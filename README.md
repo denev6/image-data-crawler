@@ -1,6 +1,6 @@
 # Pincette
 
-`selenium` 기반의 이미지 크롤링 및 처리 모듈  
+`selenium` 기반의 이미지 수집 및 처리 모듈  
 
 ---
 
@@ -129,35 +129,34 @@ pn.save_imgs(gif_dir, progess=True, ignore=False)
 ## Test
 
 자체적인 [테스트 페이지](https://pincette.netlify.app/)를 제공합니다.  
-테스트 페이지를 크롤링하는 코드는 아래와 같습니다.  
+테스트 페이지의 이미지를 수집하는 코드는 아래와 같습니다.  
 ```python
-# pincette.py
+from pincette import *
 
-if __name__ == "__main__":
+# 설정 값
+gif_dir = make_dir("test", "crawled")
+img_dir = make_dir("test", "imgs")
+result_dir = make_dir("test", "converted")
+driver = "chromedriver.exe"
+url = "https://pincette.netlify.app/"
 
-    # 설정 값
-    gif_dir = make_dir("test", "crawled")
-    img_dir = make_dir("test", "imgs")
-    result_dir = make_dir("test", "converted")
-    driver = "chromedriver.exe"
-    url = "https://pincette.netlify.app/"
-
-    # 작업 수행
-    pn = Pincette(driver, "window-size=1920,1080", "--disable-gpu")
-    pn.load_page(url, scroll=False)
-    pn.find_imgs("image__content")
-    pn.save_imgs(gif_dir, progess=True)
-    pn.close_tab()
-    pn.gif_to_img(gif_dir, img_dir, copy_imgs=True)
-    pn.convert(img_dir, result_dir, img_size=(32, 32), gray_scale=True)
+# 작업 수행
+pn = Pincette(driver, "window-size=1920,1080", "--disable-gpu")
+pn.load_page(url, scroll=False)
+pn.find_imgs("image__content")
+pn.save_imgs(gif_dir, progess=True)
+pn.close_tab()
+pn.gif_to_img(gif_dir, img_dir, copy_imgs=True)
+pn.convert(img_dir, result_dir, img_size=(32, 32), gray_scale=True)
 ```
 
 ### Result
 
 **수집된 이미지**
-
-<img src="./pages/assets/readme-1.png" alt="크롤링 샘플" height=130>
-<img src="./pages/assets/shape.gif" alt="크롤링 샘플 gif" height=130>  
+<div style="display: flex; flex-direction: row; height: 130px;">
+    <img src="./pages/assets/readme-1.png" alt="크롤링 샘플">
+    <img src="./pages/assets/shape.gif" alt="크롤링 샘플 gif">
+</div>
 
 gif_to_img:  
 <img src="./pages/assets/readme-4.png" alt="회색조 변환 결과">
