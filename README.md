@@ -153,9 +153,9 @@ pn.convert(img_dir, result_dir, img_size=(32, 32), gray_scale=True)
 ### Result
 
 **수집된 이미지**
-<div style="display: flex; flex-direction: row; max-height: 130px;">
-    <img src="./pages/assets/readme-1.png" alt="크롤링 샘플">
-    <img src="./pages/assets/shape.gif" alt="크롤링 샘플 gif">
+<div style="display: flex; flex-direction: row;">
+    <img src="./pages/assets/readme-1.png" alt="크롤링 샘플" height=130px;>
+    <img src="./pages/assets/shape.gif" alt="크롤링 샘플 gif" height=130px;>
 </div>
 
 gif_to_img:  
