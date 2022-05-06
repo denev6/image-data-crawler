@@ -1,10 +1,10 @@
 # Pincette
 
-`selenium` 기반의 이미지 수집 및 처리 모듈  
+`selenium`과 `pillow`를 활용한 이미지 수집 및 처리 모듈  
 
 ---
 
-__최근 수정 내용__: driver.exe 없이도 사용 가능하도록 수정.  
+__최근 수정 내용__: pillow를 활용한 이미지 최적화 추가. (05/06)  
 
 - [Version](#version)  
 - [Example](#example)  

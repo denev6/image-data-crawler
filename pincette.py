@@ -28,6 +28,7 @@ class Pincette(object):
         gif_to_img
         convert
         extend_srcs
+        clear_srcs
 
     Example:
         >>> from pincette import Pincette
@@ -161,15 +162,18 @@ class Pincette(object):
             for img in imgs:
                 shutil.copy(img, save_dir)
 
-    def convert(self, img_dir, save_dir, img_size=False, gray_scale=False):
+    def convert(
+        self, img_dir, save_dir, img_size=False, gray_scale=False, optimize_quality=None
+    ):
         """
-        이미지 편집(크기 조정/회색조)을 수행.
+        이미지 편집(크기 조정/회색조/최적화)을 수행.
         
         Args:
             img_dir (str): 원본 이미지 파일 경로.
             save_dir (str): 저장할 파일 경로.
-            img_size (tuple[int:int]): 이미지 크기 (수행하지 않을 경우 False).
+            img_size (tuple[int:int], False): 이미지 크기 (수행하지 않을 경우 False).
             gray_scale (bool): 회색조 변경 수행 여부.
+            optimize_quality (int, None): 이미지 압축 정도 (0~100). 
         """
         imgs = []
         for ext in ("png", "jpg", "jpeg"):
@@ -177,12 +181,26 @@ class Pincette(object):
 
         for img in imgs:
             with Image.open(img) as f:
-                save_path = os.path.join(save_dir, f"{Path(img).stem}.png")
                 if img_size:
-                    f = f.resize(img_size)
+                    f = f.resize(img_size, Image.ANTIALIAS)
+
                 if gray_scale:
                     f = f.convert("L")
-                f.save(save_path)
+                else:
+                    f = f.convert("RGB")
+
+                if optimize_quality is None:
+                    save_path = os.path.join(save_dir, f"{Path(img).stem}.png")
+                    f.save(save_path)
+                else:
+                    save_path = os.path.join(save_dir, f"{Path(img).stem}.jpeg")
+                    f.save(save_path, optimize=True, quality=optimize_quality)
+
+    def clear_srcs(self):
+        """
+        저장 목록의 이미지 주소를 모두 삭제. 
+        """
+        self.__img_srcs.clear()
 
     def _scroll_down(self, max_iter, pause):
         previous_height = 0
@@ -259,4 +277,7 @@ if __name__ == "__main__":
     pn.save_imgs(gif_dir, progess=True)
     pn.close_tab()
     pn.gif_to_img(gif_dir, img_dir, copy_imgs=True)
-    pn.convert(img_dir, result_dir, img_size=(32, 32), gray_scale=True)
+    pn.convert(
+        img_dir, result_dir, img_size=(28, 28), gray_scale=True, optimize_quality=30
+    )
+
