@@ -134,7 +134,7 @@ class Pincette(object):
         """
         self.driver.quit()
 
-    def gif_to_img(self, gif_dir, save_dir, ext="png", copy_imgs=False):
+    def gif_to_img(self, gif_dir, save_dir, ext="png", max_frame=True, copy_imgs=False):
         """
         gif 파일을 이미지로 변환.
         
@@ -142,6 +142,7 @@ class Pincette(object):
             gif_dir (str): 원본 gif 파일 경로.
             save_dir (str): 저장할 파일 경로.
             ext (str): 저장할 이미지 확장자. 기본값은 png.
+            max_frame (int): gif에서 이미지로 변환할 최대 프레임 수. (정수가 아닐 경우 모든 프레임 변환)
             copy_imgs (bool): gif 외 이미지 파일의 복사 여부.
         """
         ext = self._format_ext(ext)
@@ -153,6 +154,9 @@ class Pincette(object):
                     file_name = f"{Path(gif).stem}-{n_frame}{ext}"
                     file_path = os.path.join(save_dir, file_name)
                     f.save(file_path)
+
+                    if isinstance(max_frame, int) and (n_frame == max_frame - 1):
+                        break
 
         if copy_imgs:
             imgs = []

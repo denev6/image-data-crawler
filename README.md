@@ -4,7 +4,7 @@
 
 ---
 
-__최근 수정 내용__: pillow를 활용한 이미지 최적화 추가. (05/06)  
+__최근 수정 내용__: gif_to_img 수행 시 프레임 수 제한. (06/04)  
 
 - [Version](#version)  
 - [Example](#example)  

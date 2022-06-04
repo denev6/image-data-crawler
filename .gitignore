@@ -1,5 +1,3 @@
 .prettierignore
 chromedriver.exe
-test.py
-test/
 __pycache__/
